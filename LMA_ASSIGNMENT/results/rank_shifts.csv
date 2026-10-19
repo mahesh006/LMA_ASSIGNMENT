@@ -1,0 +1,101 @@
+chunk,baseline_rank,cosine,rerank_rank,ce_score,shift,gold,text,query_id
+436,1,0.609,1,-7.263,#1 -> #1,YES,"infringes several provisions of this Regulation, the total amount of the administrative fine shall not exceed ...",Q1
+437,2,0.558,2,-7.447,#2 -> #2,YES,"following provisions shall, in accordance with paragraph 2, be subject to administrative fines up to 20 000 00...",Q1
+438,3,0.537,3,-8.35,#3 -> #3,YES,processing or the suspension of data flows by the supervisory authority pursuant to Article 58(2) or failure t...,Q1
+176,4,0.489,5,-10.322,#4 -> #5,,"damage suffered, degree of responsibility or any relevant previous infringements, the manner in which the infr...",Q1
+432,5,0.479,6,-10.869,#5 -> #6,,controller or processor shall be held liable for the entire damage in order to ensure effective compensation o...,Q1
+201,6,0.476,10,-11.325,#6 -> #10,,"as set out in that Article, this Regulation does not go beyond what is necessary in order to achieve that obje...",Q1
+177,7,0.469,4,-9.553,#7 -> #4,,"deprivation of the profits obtained through infringements of this Regulation. However, the imposition of crimi...",Q1
+435,8,0.46,7,-11.026,#8 -> #7,,"the manner in which the infringement became known to the supervisory authority, in particular whether, and if ...",Q1
+373,9,0.447,8,-11.24,#9 -> #8,,certification body pursuant to Article 43; (r) authorise contractual clauses and provisions referred to in Art...,Q1
+414,10,0.439,9,-11.294,#10 -> #9,,and on further necessary requirements to ensure the protection of personal data of the data subjects concerned...,Q1
+294,1,0.47,3,-9.032,#1 -> #3,YES,"controller shall without undue delay and, where feasible, not later than 72 hours after having become aware of...",Q2
+105,2,0.468,1,-7.861,#2 -> #1,YES,"person concerned. Therefore, as soon as the controller becomes aware that a personal data breach has occurred,...",Q2
+305,3,0.44,4,-9.922,#3 -> #4,,"is of the opinion that the intended processing referred to in paragraph 1 would infringe this Regulation, in p...",Q2
+107,4,0.438,6,-10.231,#4 -> #6,,to implement appropriate measures against continuing or similar personal data breaches may justify more time f...,Q2
+104,5,0.436,2,-9.012,#5 -> #2,,with this Regulation. Where a data-protection impact assessment indicates that processing operations involve a...,Q2
+295,6,0.434,5,-10.168,#6 -> #5,,approximate number of data subjects concerned and the categories and approximate number of personal data recor...,Q2
+412,7,0.417,8,-10.628,#7 -> #8,,"for erasing links, copies or replications of personal data from publicly available communication services as r...",Q2
+296,8,0.415,9,-10.646,#8 -> #9,,"relating to the personal data breach, its effects and the remedial action taken. That documentation shall enab...",Q2
+106,9,0.407,7,-10.592,#9 -> #7,,"breach, without undue delay, where that personal data breach is likely to result in a high risk to the rights ...",Q2
+398,10,0.403,10,-10.963,#10 -> #10,,"to in paragraphs 1 and 2, the Board shall issue an opinion on the matter submitted to it provided that it has ...",Q2
+79,1,0.367,7,-11.245,#1 -> #7,,"any links to, or copies or replications of those personal data. In doing so, that controller should take reaso...",Q3
+85,2,0.352,1,-6.151,#2 -> #1,YES,processing and which produces legal effects concerning him or her or similarly significantly affects him or he...,Q3
+52,3,0.345,9,-11.33,#3 -> #9,,subject could in particular override the interest of the data controller where personal data are processed in ...,Q3
+84,4,0.344,6,-11.238,#4 -> #6,YES,the interests or the fundamental rights and freedoms of the data subject. (70) Where personal data are process...,Q3
+66,5,0.319,3,-11.061,#5 -> #3,,should not result in personal data being processed for other purposes by third parties such as employers or in...,Q3
+250,6,0.308,8,-11.245,#6 -> #8,,the right to request from the controller access to and rectification or erasure of personal data or restrictio...,Q3
+267,7,0.292,4,-11.227,#7 -> #4,YES,brought to the attention of the data subject and shall be presented clearly and separately from any other info...,Q3
+246,8,0.29,5,-11.237,#8 -> #5,,"Article 6(1) or point (a) of Article 9(2), the existence of the right to withdraw consent at any time, without...",Q3
+74,9,0.289,10,-11.344,#9 -> #10,,"processing. This includes the right for data subjects to have access to data concerning their health, for exam...",Q3
+54,10,0.287,2,-10.96,#10 -> #2,,"security of the related services offered by, or accessible via, those networks and systems, by public authorit...",Q3
+101,1,0.453,3,-3.057,#1 -> #3,,rights and freedoms of the data subject. The controller and processor may choose to use an individual contract...,Q4
+12,2,0.45,1,1.622,#2 -> #1,YES,States as well as effective cooperation between the supervisory authorities of different Member States. The pr...,Q4
+287,3,0.442,2,-0.048,#3 -> #2,,"and any person acting under the authority of the controller or of the processor, who has access to personal da...",Q4
+445,4,0.429,6,-7.706,#4 -> #6,,"fundamental rights, with particular regard to the transparency of processing, the transfer of personal data wi...",Q4
+186,5,0.425,8,-9.058,#5 -> #8,,"data in the employment context, in particular for the conditions under which personal data in the employment c...",Q4
+444,6,0.421,5,-7.5,#6 -> #5,,"of the rights and freedoms in respect of the processing of employees' personal data in the employment context,...",Q4
+190,7,0.414,9,-9.206,#7 -> #9,,"obtained through registries provide solid, high-quality knowledge which can provide the basis for the formulat...",Q4
+187,8,0.408,10,-10.741,#8 -> #10,,research purposes or statistical purposes should be subject to appropriate safeguards for the rights and freed...,Q4
+290,9,0.406,4,-4.257,#9 -> #4,YES,"measures referred to in Article 32(1). 3. The records referred to in paragraphs 1 and 2 shall be in writing, i...",Q4
+55,10,0.406,7,-8.736,#10 -> #7,,"were initially collected. In such a case, no legal basis separate from that which allowed the collection of th...",Q4
+297,1,0.616,1,1.72,#1 -> #1,YES,of Article 33(3). 3. The communication to the data subject referred to in paragraph 1 shall not be required if...,Q5
+295,2,0.573,9,-2.118,#2 -> #9,,approximate number of data subjects concerned and the categories and approximate number of personal data recor...,Q5
+296,3,0.57,6,-0.953,#3 -> #6,,"relating to the personal data breach, its effects and the remedial action taken. That documentation shall enab...",Q5
+104,4,0.55,2,0.004,#4 -> #2,,with this Regulation. Where a data-protection impact assessment indicates that processing operations involve a...,Q5
+106,5,0.548,7,-1.578,#5 -> #7,,"breach, without undue delay, where that personal data breach is likely to result in a high risk to the rights ...",Q5
+108,6,0.513,5,-0.356,#6 -> #5,,"concerning the format and procedures applicable to the notification of personal data breaches, due considerati...",Q5
+105,7,0.509,3,-0.022,#7 -> #3,,"person concerned. Therefore, as soon as the controller becomes aware that a personal data breach has occurred,...",Q5
+294,8,0.504,8,-2.025,#8 -> #8,,"controller shall without undue delay and, where feasible, not later than 72 hours after having become aware of...",Q5
+107,9,0.504,4,-0.221,#9 -> #4,,to implement appropriate measures against continuing or similar personal data breaches may justify more time f...,Q5
+413,10,0.494,10,-2.432,#10 -> #10,,referred to in Article 33(1) and (2) and for the particular circumstances in which a controller or a processor...,Q5
+76,1,0.67,8,-4.556,#1 -> #8,,in particular in the context of online services and online identifiers. A controller should not retain persona...,Q6
+257,2,0.65,1,0.215,#2 -> #1,,right to obtain from the controller without undue delay the rectification of inaccurate personal data concerni...,Q6
+78,3,0.625,6,-2.149,#3 -> #6,,"freedom of expression and information, for compliance with a legal obligation, for the performance of a task c...",Q6
+258,4,0.596,10,-5.032,#4 -> #10,,collected or otherwise processed; (b) the data subject withdraws consent on which the processing is based acco...,Q6
+42,5,0.594,4,-1.033,#5 -> #4,,"purposes for which they are processed. This requires, in particular, ensuring that the period for which the pe...",Q6
+259,6,0.592,3,-0.589,#6 -> #3,YES,of information society services referred to in Article 8(1). 2. Where the controller has made the personal dat...,Q6
+220,7,0.59,9,-4.877,#7 -> #9,,"are processed, are erased or rectified without delay (‘accuracy’); (1) Directive (EU) 2015/1535 of the Europea...",Q6
+255,8,0.584,2,-0.31,#8 -> #2,,right to request from the controller rectification or erasure of personal data or restriction of processing of...,Q6
+77,9,0.577,7,-2.727,#9 -> #7,YES,"has withdrawn his or her consent or objects to the processing of personal data concerning him or her, or where...",Q6
+262,10,0.556,5,-1.546,#10 -> #5,,pursuant to Article 21(1) pending the verification whether the legitimate grounds of the controller override t...,Q6
+48,1,0.55,4,1.888,#1 -> #4,,the performance of a task carried out in the public interest or in the exercise of an official authority may b...,Q7
+50,2,0.526,3,2.251,#2 -> #3,,"(OJ L 95, 21.4.1993, p. 29). based on the vital interest of another natural person should in principle take pl...",Q7
+49,3,0.517,5,1.418,#3 -> #5,,carried out in the public interest or in the exercise of official authority should be a public authority or an...,Q7
+52,4,0.487,1,5.897,#4 -> #1,YES,subject could in particular override the interest of the data controller where personal data are processed in ...,Q7
+260,5,0.447,7,-1.016,#5 -> #7,,or Member State law to which the controller is subject or for the performance of a task carried out in the pub...,Q7
+66,6,0.43,9,-3.288,#6 -> #9,,should not result in personal data being processed for other purposes by third parties such as employers or in...,Q7
+51,7,0.428,8,-2.07,#7 -> #8,,"or the fundamental rights and freedoms of the data subject are not overriding, taking into consideration the r...",Q7
+47,8,0.427,6,-0.46,#8 -> #6,,being necessary for such performance. (44) Processing should be lawful where it is necessary in the context of...,Q7
+160,9,0.416,10,-6.988,#9 -> #10,,"decisions in clearly specified cases where there are conflicting views among supervisory authorities, in parti...",Q7
+55,10,0.413,2,3.314,#10 -> #2,,"were initially collected. In such a case, no legal basis separate from that which allowed the collection of th...",Q7
+73,1,0.709,4,0.847,#1 -> #4,,expressly laid down by law or where the provision of information to the data subject proves to be impossible o...,Q8
+74,2,0.675,2,1.094,#2 -> #2,,"processing. This includes the right for data subjects to have access to data concerning their health, for exam...",Q8
+233,3,0.67,6,-1.548,#3 -> #6,,personal data which are manifestly made public by the data subject; (f) processing is necessary for the establ...,Q8
+70,4,0.651,7,-1.92,#4 -> #7,,and of the Council of 16 December 2008 on Community statistics on public health and health and safety at work ...,Q8
+231,5,0.648,5,-0.11,#5 -> #5,YES,one of the following applies: (a) the data subject has given explicit consent to the processing of those perso...,Q8
+64,6,0.642,3,1.055,#6 -> #3,,"needs, in particular where the processing of such data is carried out for certain health-related purposes by p...",Q8
+61,7,0.633,1,2.61,#7 -> #1,YES,to permit the exercise of fundamental freedoms. (52) Derogating from the prohibition on processing special cat...,Q8
+43,8,0.63,8,-2.191,#8 -> #8,,"of personal data and the equipment used for the processing. (40) In order for processing to be lawful, persona...",Q8
+346,9,0.618,10,-4.273,#9 -> #10,,"including the categories of personal data, the type of processing and its purposes, the type of data subjects ...",Q8
+9,10,0.613,9,-3.69,#10 -> #9,,natural persons with regard to the processing of personal data should be ensured throughout the Union. Regardi...,Q8
+311,1,0.587,1,-2.441,#1 -> #1,YES,data protection officer in performing the tasks referred to in Article 39 by providing resources necessary to ...,Q9
+309,2,0.58,3,-2.984,#2 -> #3,,officer provided that a data protection officer is easily accessible from each establishment. 3. Where the con...,Q9
+312,3,0.571,2,-2.717,#3 -> #2,,the exercise of their rights under this Regulation. 5. The data protection officer shall be bound by secrecy o...,Q9
+313,4,0.567,4,-3.144,#4 -> #4,,"provisions; (b) to monitor compliance with this Regulation, with other Union or Member State data protection p...",Q9
+374,5,0.565,6,-3.455,#5 -> #6,,"data subject and, where applicable, for the data protection officer. 4. Where requests are manifestly unfounde...",Q9
+373,6,0.564,8,-5.504,#6 -> #8,,certification body pursuant to Article 43; (r) authorise contractual clauses and provisions referred to in Art...,Q9
+310,7,0.562,5,-3.237,#7 -> #5,,"and, in particular, expert knowledge of data protection law and practices and the ability to fulfil the tasks ...",Q9
+104,8,0.534,7,-5.284,#8 -> #7,,with this Regulation. Where a data-protection impact assessment indicates that processing operations involve a...,Q9
+293,9,0.521,10,-10.448,#9 -> #10,,approved code of conduct as referred to in Article 40 or an approved certification mechanism as referred to in...,Q9
+107,10,0.518,9,-7.291,#10 -> #9,,to implement appropriate measures against continuing or similar personal data breaches may justify more time f...,Q9
+229,1,0.41,1,-7.418,#1 -> #1,YES,"in relation to information society services 1. Where point (a) of Article 6(1) applies, in relation to the off...",Q10
+228,2,0.388,3,-9.868,#2 -> #3,,an infringement of this Regulation shall not be binding. 3. The data subject shall have the right to withdraw ...,Q10
+68,3,0.384,9,-11.195,#3 -> #9,,"concise, easily accessible and easy to understand, and that clear and plain language and, additionally, where ...",Q10
+230,4,0.368,5,-10.71,#4 -> #5,,"consent is given or authorised by the holder of parental responsibility over the child, taking into considerat...",Q10
+40,5,0.363,7,-10.872,#5 -> #7,,to children when using services offered directly to a child. The consent of the holder of parental responsibil...,Q10
+45,6,0.352,6,-10.788,#6 -> #6,,should ensure that the data subject is aware of the fact that and the extent to which consent is given. In acc...,Q10
+39,7,0.349,8,-11.119,#7 -> #8,,"undertakings by virtue, for example, of ownership, financial participation or the rules which govern it or the...",Q10
+238,8,0.332,10,-11.197,#8 -> #10,,"except where the data subject, for the purpose of exercising his or her rights under those articles, provides ...",Q10
+32,9,0.327,2,-9.702,#9 -> #2,,"relating to him or her, such as by a written statement, including by electronic means, or an oral statement. T...",Q10
+77,10,0.321,4,-10.212,#10 -> #4,,"has withdrawn his or her consent or objects to the processing of personal data concerning him or her, or where...",Q10

@@ -1,0 +1,6 @@
+Stage,Pipeline 1: Baseline,Pipeline 2: Re-rank
+Dense retrieval (embed query + FAISS top-10),8.02 ms,8.02 ms
+Cross-encoder re-rank (10 pairs),-,16.17 ms
+Total retrieval,8.02 ms,24.19 ms
+LLM generation (avg),4.38 s,3.86 s
+End-to-end (avg),4.38 s,3.89 s

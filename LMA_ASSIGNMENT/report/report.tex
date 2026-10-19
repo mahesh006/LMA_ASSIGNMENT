@@ -1,0 +1,330 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{booktabs,tabularx,array,multirow,amssymb}
+\usepackage[table]{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue!60!black}
+\usepackage{enumitem,etoolbox}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup[table]{font=small,labelfont=bf,skip=4pt}
+\AtBeginEnvironment{tabularx}{\small}
+\setlist{nosep,leftmargin=*}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\renewcommand{\arraystretch}{1.25}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\makeatletter\setlength{\@fptop}{0pt}\setlength{\@fpsep}{14pt plus 2pt}\makeatother % stack tables at the top of float pages
+\newcommand{\ok}{\textcolor{green!50!black}{\checkmark}}
+\newcommand{\no}{\textcolor{red!70!black}{$\times$}}
+\newcommand{\pa}{\textcolor{orange!85!black}{$\sim$}}
+
+\title{Two-Stage Retrieval for RAG on the GDPR:\\Bi-Encoder Baseline vs.\ Cross-Encoder Re-Ranking}
+\author{\small Code: \url{https://github.com/mahesh006/LMA_ASSIGNMENT}}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+%====================================================================
+\section{Method}
+
+\subsection{Document and Preprocessing}
+I used the EU General Data Protection Regulation (Regulation (EU) 2016/679), the official
+88-page PDF from EUR-Lex with 54,932 words. It has 173 recitals followed by 99 articles. Many
+articles state a general rule and then restrict it somewhere else (``shall not apply'',
+``shall be prohibited'', ``not below 13 years''). Most rules are also explained a second
+time in a recital, using different wording. Both properties make it a hard document for
+retrieval.
+
+Text is extracted page by page with \texttt{pypdf}. Before chunking I applied three cleaning steps:
+\begin{itemize}
+  \item drop the running page header (\texttt{Official Journal of the European Union L 119/<n>});
+  \item re-join words that were hyphenated at a line break;
+  \item collapse all whitespace.
+\end{itemize}
+The text is then split into fixed windows of 150 words with a 30-word overlap, which gives
+\textbf{458 chunks}. The longest chunk is 220 tokens, so every chunk fits inside the
+bi-encoder's 256-token limit and nothing is truncated during embedding.
+
+\subsection{Retrieval Pipelines and Architecture Comparison}
+Both pipelines use the same chunks, the same index and the same top-10 candidate list
+(Table~\ref{tab:setup}).
+
+\textbf{Pipeline 1 (Baseline).} Every chunk is embedded once with the bi-encoder, and the vectors
+are stored in a FAISS flat inner-product index. The vectors are L2-normalised, so the inner
+product is the cosine similarity. For each query the top-10 chunks are retrieved, and the
+first three go to the LLM.
+
+\textbf{Pipeline 2 (Re-Ranking).} The same ten candidates are scored by the cross-encoder as
+(query, chunk) pairs and sorted by that score, and the new top three go to the LLM.
+
+\begin{table}[H]
+\centering
+\caption{Experimental setup.}
+\label{tab:setup}
+\begin{tabularx}{\linewidth}{@{}lL@{}}
+\toprule
+Bi-encoder & \texttt{sentence-transformers/all-MiniLM-L6-v2} (384-d), FAISS \texttt{IndexFlatIP} \\
+Cross-encoder & \texttt{cross-encoder/ms-marco-MiniLM-L-6-v2} \\
+LLM & \texttt{Qwen/Qwen2.5-7B-Instruct}, float16, greedy decoding, max 250 new tokens \\
+Retrieval & $k=10$ candidates, $n=3$ chunks to the LLM \\
+Hardware & 4 $\times$ NVIDIA RTX 2080 Ti (11\,GB), LLM split across GPUs with \texttt{device\_map="auto"} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The two models differ in \emph{when} the query and the chunk meet (Table~\ref{tab:arch}).
+The bi-encoder turns each text into a vector independently, so relevance can only be measured
+as the distance between two fixed summaries. The cross-encoder reads the query and the chunk
+as one sequence, so attention runs between every query token and every chunk token before
+it gives a score.
+
+\begin{table}[H]
+\centering
+\caption{Bi-encoder vs.\ cross-encoder.}
+\label{tab:arch}
+\begin{tabularx}{\linewidth}{@{}lLL@{}}
+\toprule
+ & \textbf{Bi-Encoder} & \textbf{Cross-Encoder} \\
+\midrule
+Input & Query and chunk encoded separately & \texttt{[CLS] query [SEP] chunk [SEP]} as one input \\
+Interaction & Only through the final cosine similarity & Self-attention across all query and chunk tokens \\
+Output & One 384-d vector per text & One relevance score per pair \\
+Pre-compute & All 458 chunk vectors, once, offline & Nothing; each pair is scored at query time \\
+Cost per query & 1 encoder pass + index search & $N$ encoder passes for $N$ candidates \\
+Weakness & Ranks by topic; blurs negation and exceptions & Too slow to run over the whole corpus \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Generation}
+One prompt template and one generation function serve both pipelines. The prompt tells the
+LLM to answer only from the given chunks, to cite the chunk numbers, and to reply
+``The provided context does not contain the answer.'' if the chunks are not enough. I added
+this rule because Qwen has probably seen the GDPR during training and could otherwise answer
+from memory, which would hide a retrieval failure. Decoding is greedy, so the only thing
+that differs between Answer 1 and Answer 2 is the three chunks. Two separate runs produced
+identical rankings and identical answers.
+
+\subsection{Evaluation Protocol}
+I wrote ten queries covering the failure types in the assignment: keyword traps, exceptions and
+corner cases, and negation. Each query has one or more \emph{gold phrases}: short verbatim
+passages of the GDPR that contain the answer. Any chunk containing a gold phrase is a gold
+chunk, and Table~\ref{tab:rank} reports the best gold rank in each
+pipeline. Matching ignores case and whitespace. In my first run some labels were too narrow:
+for one query the phrase matched an unrelated article, and for another the answer was split
+across two chunks. Gold sets therefore include both the Article and the matching Recital
+where they state the same rule. Answers were judged by hand against the gold text:
+\ok\ correct, \pa\ partially correct (incomplete or self-contradicting), \no\ wrong or no answer.
+Latency was measured with \texttt{time.perf\_counter} after a warm-up call. Retrieval and
+re-ranking times are averaged over 10 queries $\times$ 20 repeats, and generation over the 10 queries.
+
+%====================================================================
+\section{Results}
+
+\subsection{Rank Shifts}
+With re-ranking, the gold chunk was in the top three for \textbf{10/10} queries, against
+\textbf{7/10} for the baseline (Table~\ref{tab:rank}). Three queries were restored: their gold
+chunk sat at ranks 4--6 for the bi-encoder and was moved into the top three, twice to rank
+\#1. In those three cases the baseline's \#1 chunk matched the topic but not the question:
+\begin{itemize}
+  \item Q6: general text about erasure, not the article that lists its exceptions;
+  \item Q7: general text on public-interest tasks, not the sentence about legitimate interests;
+  \item Q8: the exceptions to the duty to \emph{inform} the data subject, not the exceptions to the health-data prohibition.
+\end{itemize}
+In the five queries where the baseline already had the gold chunk at \#1, re-ranking kept it in
+the top three.
+
+\begin{table}[!htbp]
+\centering
+\caption{Best gold-chunk rank before (bi-encoder) and after (cross-encoder) re-ranking.}
+\label{tab:rank}
+\begin{tabularx}{\linewidth}{@{}l >{\hsize=1.35\hsize}L c c c >{\hsize=0.65\hsize}L@{}}
+\toprule
+Category & Query & Gold & Bi & CE & Baseline \#1 (distractor) \\
+\midrule
+Exception    & Q6: When can a request for erasure be refused? & 259 & \#6 & \#3 & c76 general erasure text \\
+Exception    & Q7: Can a public authority rely on legitimate interests? & 52 & \#4 & \#1 & c48 public-interest tasks \\
+Negation     & Q8: When is processing health data \emph{not} prohibited? & 231/61 & \#5 & \#1 & c73 duty-to-inform exceptions \\
+\midrule
+Keyword trap & Q3: Can a bank reject a loan using only an algorithm? & 85 & \#2 & \#1 & c79 erasure recital \\
+Exception    & Q4: Must a 50-employee business keep processing records? & 12 & \#2 & \#1 & c101 processor contracts \\
+Keyword trap & Q1: Maximum penalty for breaking the GDPR? & 436 & \#1 & \#1 & gold already \#1 \\
+Keyword trap & Q2: Company ``hacked'': how fast to tell the regulator? & 294/105 & \#1 & \#1 & gold already \#1 \\
+Exception    & Q5: Stolen data was encrypted: must people be told? & 297 & \#1 & \#1 & gold already \#1 \\
+Negation     & Q9: Can a company fire its DPO over its advice? & 311 & \#1 & \#1 & gold already \#1 \\
+Negation     & Q10: Can a 12-year-old consent alone? & 229 & \#1 & \#1 & gold already \#1 \\
+\midrule
+\multicolumn{3}{@{}l}{\textbf{Gold chunk in top 3}} & \textbf{7/10} & \textbf{10/10} & \\
+\bottomrule
+\end{tabularx}
+\par\smallskip\raggedright\footnotesize Bi and CE give the best rank of any gold chunk. Where two chunks are listed, the first is the best gold chunk for the baseline and the second for the re-ranker. In Q8, Art.~9(2) (c231) stayed at \#5, while Recital~52 (c61) rose from \#7 to \#1. In Q2, c294 went from \#1 to \#3 and c105 from \#2 to \#1.
+\end{table}
+
+Table~\ref{tab:cov} maps these results onto the failure categories named in the assignment.
+
+\begin{table}[!htbp]
+\centering
+\caption{Failure categories from the assignment and where they are demonstrated.}
+\label{tab:cov}
+\begin{tabularx}{\linewidth}{@{}l L L@{}}
+\toprule
+Category & Evidence & Outcome \\
+\midrule
+Keyword trap / distractor & The baseline \#1 chunk in Q6, Q7 and Q8 shares the query's words but answers a different question (c76 erasure in general, c48 public-interest tasks, c73 exceptions to the duty to inform). My own keyword-trap queries Q1--Q3 did \emph{not} fool the bi-encoder. & Distractors demoted (\#1 $\rightarrow$ \#8, \#4, \#4); gold promoted \\
+Exceptions \& corner cases & Q6: exceptions to erasure (Art.~17(3)); Q7: public authorities excluded from legitimate interests (Recital 47) & \#6 $\rightarrow$ \#3; \#4 $\rightarrow$ \#1 \\
+Negation \& constraints & Q8: when health data is \emph{not} prohibited (Recital 52) & c61 \#7 $\rightarrow$ \#1 \\
+Buried chunk (ranks 4--10) & Q6, Q7, Q8 above; Q4: Art.~30(5) at \#9 & Three promoted into the top 3; Q4 only to \#4 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Answer Quality}
+Correct answers rose from 4/10 to 6/10, and wrong answers fell from 4 to 1
+(Table~\ref{tab:ans}). Unlike a pure refusal, the baseline often produced a confident answer
+built from the wrong chunk.
+\begin{itemize}
+  \item Q8: it listed the exceptions to the duty to inform as if they were the cases where health data may be processed.
+  \item Q5: it added a ``public communication'' requirement that belongs to a different condition of Art.~34(3).
+\end{itemize}
+Both answers sound plausible and cite a real chunk, which makes them harder to spot than an
+abstention. After re-ranking, both became correct. In the terms of the assignment:
+\begin{itemize}
+  \item Q8 is a \emph{misstated rule};
+  \item Q5 is a \emph{hallucinated} extra condition;
+  \item Q7 is a missing answer, because the critical chunk sat outside the top 3;
+  \item Q6 \emph{omits a clause} in both pipelines;
+  \item Q4 is a \emph{misstated rule} in both pipelines, with an invented comparison (``50 exceeds 250'') in Answer~1.
+\end{itemize}
+
+Better retrieval did not always mean a better answer. In Q6 the baseline answer came from
+Recital~65 and listed four of the five exceptions in Art.~17(3), missing only freedom of
+expression. The re-ranked answer included freedom of expression but dropped three of the
+others, so both are partial. In Q7, Answer~2 states the correct restriction but opens with
+the refusal sentence from the prompt. I judged it partial because it contradicts itself.
+
+\begin{table}[!htbp]
+\centering
+\caption{Answer 1 (baseline) vs.\ Answer 2 (re-ranked).}
+\label{tab:ans}
+\begin{tabularx}{\linewidth}{@{}l L L c c@{}}
+\toprule
+Query & Answer 1 & Answer 2 & A1 & A2 \\
+\midrule
+Q8 Health data & Lists ``laid down by law, disproportionate effort, archiving'' from the wrong rule (c73) & Public interest, health security, control of communicable diseases (Recital 52) & \no & \ok \\
+Q5 Encrypted data & Not required, but adds a ``public communication'' duty from Art.~34(3)(c) & Not required if the data are unintelligible, e.g.\ encrypted & \no & \ok \\
+Q7 Public authority & ``The provided context does not contain the answer.'' & Restriction in Recital 47, but opens with the refusal sentence & \no & \pa \\
+Q6 Erasure refused & Four exceptions; freedom of expression missing & Freedom of expression, legal obligation, public interest; others missing & \pa & \pa \\
+Q3 Loan by algorithm & Allowed only if authorised by law (Recital 71) & Same & \pa & \pa \\
+Q4 Records, 50 staff & ``50 exceeds the threshold of 250'', so records required & Records required & \no & \no \\
+Q1, Q2, Q9, Q10 & Correct (fine cap, 72 hours, DPO protection, age 13--16) & Same & \ok & \ok \\
+\midrule
+\multicolumn{3}{@{}l}{\textbf{Correct / partial / wrong (out of 10)}} & \textbf{4/2/4} & \textbf{6/3/1} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Latency}
+Re-ranking ten pairs adds about 16\,ms, raising retrieval from 8.0\,ms to 24.2\,ms
+(Table~\ref{tab:lat}). That is about 0.4\% of the time the LLM needs to write an answer.
+Generation dominates end-to-end latency and depends mainly on answer length. The re-ranked
+answers happened to be slightly shorter, so Pipeline~2's generation time is a little lower.
+
+\begin{table}[H]
+\centering
+\caption{Mean latency per query. The baseline has no re-ranking step.}
+\label{tab:lat}
+\begin{tabularx}{0.75\linewidth}{@{}L r r@{}}
+\toprule
+Stage & Pipeline 1 & Pipeline 2 \\
+\midrule
+Query embedding + FAISS search (ms) & 8.02 & 8.02 \\
+Cross-encoder, 10 pairs (ms) & not used & 16.17 \\
+\textbf{Retrieval total (ms)} & \textbf{8.02} & \textbf{24.19} \\
+LLM generation (s) & 4.38 & 3.86 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%====================================================================
+\section{Discussion}
+
+\subsection{Why Re-Ranking Helps}
+All three restored queries fail in the same way: the bi-encoder ranks by shared topic.
+A recital about erasure, about public-interest tasks or about exceptions in general lies close
+to the query in embedding space, even though it answers a different question. Words that
+decide the meaning in legal text, such as ``not'', ``shall not apply'' or ``by public
+authorities'', change a mean-pooled vector very little. In Q7 the decisive sentence is one
+line inside a recital that is mostly about something else, so its signal is diluted in the
+chunk vector. The cross-encoder reads the question and the chunk together, so it can check
+whether the chunk actually answers the question rather than just sharing its vocabulary.
+
+\subsection{Where Re-Ranking Does Not Help}
+The cross-encoder can only reorder the ten candidates it receives, and the top-3 cut-off is
+still tight (Table~\ref{tab:lim}). In Q4 the operative exemption, Art.~30(5), rose from \#9 to
+\#4 but never reached the LLM. The only gold chunk in the top three was Recital~13, which
+mentions the 250-employee derogation without stating the rule. Both answers concluded that
+the business must keep records, and Answer~1 even claimed ``50 exceeds 250''. In Q3, Art.~22
+rose from \#7 to \#4, and both answers relied on Recital~71 alone. Re-ranking also does not
+fix how the LLM uses the context: in Q6 the right article reached the LLM, but the answer
+was still incomplete.
+
+\begin{table}[H]
+\centering
+\caption{Cases where re-ranking was not enough.}
+\label{tab:lim}
+\begin{tabularx}{\linewidth}{@{}l L c c L@{}}
+\toprule
+Type & Query & Chunk & Bi $\rightarrow$ CE & Result \\
+\midrule
+Cut-off too tight & Q4: Must a 50-employee business keep records? & 290 (Art.~30(5)) & \#9 $\rightarrow$ \#4 & Both answers wrong \\
+Cut-off too tight & Q3: Can a bank reject a loan by algorithm? & 267 (Art.~22) & \#7 $\rightarrow$ \#4 & Both partial \\
+Generation, not retrieval & Q6: When can erasure be refused? & 259 (Art.~17(3)) & \#6 $\rightarrow$ \#3 & Both partial \\
+Self-contradiction & Q7: Public authority, legitimate interests? & 52 (Recital 47) & \#4 $\rightarrow$ \#1 & Correct fact after a refusal line \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Scaling}
+Running the cross-encoder over the whole corpus would make every query cost one transformer
+pass per chunk. Its score depends on the query, so none of this work can be done in advance.
+The bi-encoder computes the chunk vectors once offline, and at query time it needs only one
+encoding plus a vector search, which approximate indexes such as HNSW keep fast for millions
+of vectors. I measured the cross-encoder on all 458 chunks for one query: 348.6\,ms, against
+23.0\,ms for the two-stage pipeline, which is about 0.76\,ms per pair. Table~\ref{tab:scale}
+extrapolates this linearly. The two-stage design spends the cheap model on recall over the
+whole collection and the expensive model on precision over only $k=10$ candidates.
+
+\begin{table}[H]
+\centering
+\caption{Per-query cost of cross-encoding the whole corpus (extrapolated from 0.76\,ms/pair).}
+\label{tab:scale}
+\begin{tabularx}{0.6\linewidth}{@{}L r@{}}
+\toprule
+Corpus size & Cross-encoder on all chunks \\
+\midrule
+458 chunks (this document, measured) & 0.35\,s \\
+10k chunks & $\sim$7.6\,s \\
+100k chunks & $\sim$1.3\,min \\
+1M chunks & $\sim$12.7\,min \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Limitations}
+\begin{itemize}
+  \item Small evaluation: ten hand-written queries on one document. They show failure modes,
+        not average accuracy.
+  \item Gold labels and answer correctness were judged by me. The gold sets were widened once,
+        to include matching recitals, after the first run.
+  \item Fixed 150-word windows ignore article boundaries, so some rules (e.g.\ Art.~9(2)) are
+        split across chunks. Chunking by article might help.
+  \item Only $k=10$ and $n=3$ were tested. A larger $n$ would likely have fixed Q4 and Q3.
+  \item Latency was measured on one machine with short answers. Only the 458-chunk point of the scaling table is measured; the rest is extrapolated.
+\end{itemize}
+
+\end{document}

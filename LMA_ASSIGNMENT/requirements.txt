@@ -1,0 +1,8 @@
+torch
+pypdf
+sentence-transformers
+transformers
+accelerate
+faiss-cpu
+pandas
+jupyter
